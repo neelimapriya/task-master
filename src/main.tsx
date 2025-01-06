@@ -5,13 +5,14 @@ import {Provider} from "react-redux";
 import { RouterProvider } from 'react-router-dom';
 import routes from './routes/route.tsx';
 import { ThemeProvider } from './providers/theme-providers.tsx';
+import { store } from './redux/store.ts';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <ThemeProvider>
-   {/* <Provider store={undefined}> */}
+   <Provider store={store}>
    <RouterProvider router={routes}/>
-    {/* </Provider> */}
+    </Provider>
     </ThemeProvider>
  
   </StrictMode>,
