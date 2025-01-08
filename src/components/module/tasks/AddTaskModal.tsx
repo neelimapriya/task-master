@@ -32,25 +32,30 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 import { addTask } from "@/redux/features/task/taskSlice";
-import { UseAppDispatch } from "@/redux/hook";
+import { selectUsers } from "@/redux/features/user/userSlice";
+import { UseAppDispatch, useAppSelector } from "@/redux/hook";
 import { ITask } from "@/types";
 import { DialogDescription } from "@radix-ui/react-dialog";
 import { format } from "date-fns";
 import { CalendarIcon } from "lucide-react";
-import React from "react";
+import { useState } from "react";
+
 import { FieldValues, SubmitHandler, useForm } from "react-hook-form";
 
 export function AddTaskModal() {
+  const [open,setOpen]=useState(false)
   const form = useForm();
-
+const users=useAppSelector(selectUsers)
   const dispatch = UseAppDispatch();
   const onSubmit: SubmitHandler<FieldValues> = (data) => {
     console.log(data);
     dispatch(addTask(data as ITask));
+    setOpen(false)
+    form.reset()
   };
 
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button>Add task</Button>
       </DialogTrigger>
@@ -70,7 +75,7 @@ export function AddTaskModal() {
                 <FormItem>
                   <FormLabel>Title</FormLabel>
                   <FormControl>
-                    <Input {...field} value={field.value || ""} />
+                    <Input required {...field} value={field.value || ""} />
                   </FormControl>
                 </FormItem>
               )}
@@ -82,7 +87,7 @@ export function AddTaskModal() {
                 <FormItem>
                   <FormLabel>Description</FormLabel>
                   <FormControl>
-                    <Textarea {...field} value={field.value || ""} />
+                    <Textarea required {...field} value={field.value || ""} />
                   </FormControl>
                 </FormItem>
               )}
@@ -130,6 +135,30 @@ export function AddTaskModal() {
 
             <FormField
               control={form.control}
+              name="assignedTo"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Assigned to</FormLabel>
+                  <FormControl>
+                    <Select onValueChange={field.onChange}>
+                      <SelectTrigger className="">
+                        <SelectValue placeholder="Select" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {
+                          users.map((user)=><SelectItem value={user.id}>{user.name}</SelectItem>)
+                        }
+                        
+                        
+                      </SelectContent>
+                    </Select>
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
+            <FormField
+              control={form.control}
               name="priority"
               render={({ field }) => (
                 <FormItem>
@@ -152,7 +181,7 @@ export function AddTaskModal() {
 
             <DialogFooter>
               <Button className="mt-5" type="submit">
-                Save changes
+                Add task
               </Button>
             </DialogFooter>
           </form>
